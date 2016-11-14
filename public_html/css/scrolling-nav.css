@@ -20,7 +20,7 @@ html {
     height: 100%;
 }
 
-@media(min-width:767px) {
+@media(min-width:700px) {
     .navbar {
         
         -webkit-transition: background .5s ease-in-out,padding .5s ease-in-out;
@@ -101,4 +101,6 @@ h1, h2, h3, h4, blockquote, q, .maia-nav ul {
 
 .nav-text{
     color: #00aff2 !important;
+}.page-scroll {
+
 }
