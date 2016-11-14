@@ -265,19 +265,19 @@ function loadMap(position) {
         map.fitBounds(bounds);
     });
 
-    marker = new google.maps.Marker({
+    marker_location = new google.maps.Marker({
         map: map,
         draggable: true,
         animation: google.maps.Animation.DROP,
         position: {lat: latitude, lng: longitude},
     });
-    marker.addListener('click', toggleBounce);
+    marker_location.addListener('click', toggleBounce);
 }
 function toggleBounce() {
-    if (marker.getAnimation() !== null) {
-        marker.setAnimation(null);
+    if (marker_location.getAnimation() !== null) {
+        marker_location.setAnimation(null);
     } else {
-        marker.setAnimation(google.maps.Animation.BOUNCE);
+        marker_location.setAnimation(google.maps.Animation.BOUNCE);
     }
 }
 
