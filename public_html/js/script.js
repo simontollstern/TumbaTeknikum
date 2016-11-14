@@ -217,7 +217,6 @@ function loadMap(position) {
 
     var input = document.getElementById('srch-term');
     var searchBox = new google.maps.places.SearchBox(input);
-    map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
     map.addListener('bounds_changed', function () {
         searchBox.setBounds(map.getBounds());
