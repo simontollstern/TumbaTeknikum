@@ -20,7 +20,7 @@ html {
     height: 100%;
 }
 
-@media(min-width:700px) {
+@media(min-width:767px) {
     .navbar {
         
         -webkit-transition: background .5s ease-in-out,padding .5s ease-in-out;
@@ -37,40 +37,10 @@ html {
 The padding is very important to make sure the scrollspy picks up the right area when scrolled to. Adjust the margin and padding of sections and children 
 of those sections to manage the look and feel of the site. */
 
-.intro-section {
-    height: 80%;
-    padding-top: 150px;
-    text-align: center;
-    background: #fff;
-    background-image: url('jumbotron.jpg');
-    background-size: 200%;
-    background-repeat: no-repeat;
-}
-
-.intro-section h1 {
-    color: #fff;
-}
-
-.intro-section p {
-    color: #eee;
-}
-
-.compare-section {
-    padding-top: 50px;
-    text-align: center;
-    background: #eee;
-}
-
 .about-section {
     padding-top: 50px;
     text-align: center;
     background: #fff;
-}
-
-.contact-section {
-    padding-top: 50px;
-    text-align: center;
-    background: #eee;
 }
 
 h1, h2, h3, h4, blockquote, q, .maia-nav ul {
@@ -101,6 +71,4 @@ h1, h2, h3, h4, blockquote, q, .maia-nav ul {
 
 .nav-text{
     color: #00aff2 !important;
-}.page-scroll {
-
 }
