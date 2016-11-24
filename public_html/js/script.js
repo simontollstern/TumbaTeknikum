@@ -5,14 +5,15 @@ function initMap() {
     }
 }
 
+var map, heatmap;
+
 function loadMap(position) {
     var latitude = position.coords.latitude;
     var longitude = position.coords.longitude;
-    console.log(latitude + ":" + longitude);
     map = new google.maps.Map(document.getElementById('map'), {
-        center: {lat: latitude, lng: longitude},
         zoom: 13,
-        //<editor-fold desc="MAP STYLE">
+        center: {lat: latitude, lng: longitude},
+        mapTypeId: 'roadmap',
         styles: [
             {
                 "elementType": "geometry",
@@ -173,22 +174,21 @@ function loadMap(position) {
             },
             {
                 "featureType": "transit",
-                "elementType": "geometry",
-                "stylers": [
-                    {
-                        "color": "#ffeb3b"
-                    },
-                    {
-                        "weight": 4
-                    }
-                ]
-            },
-            {
-                "featureType": "transit",
                 "elementType": "labels.text.fill",
                 "stylers": [
                     {
                         "color": "#757575"
+                    }
+                ]
+            },
+            {
+                "featureType": "transit.line",
+                "stylers": [
+                    {
+                        "color": "#ffffff"
+                    },
+                    {
+                        "weight": 2
                     }
                 ]
             },
@@ -210,75 +210,29 @@ function loadMap(position) {
                     }
                 ]
             }
-        ],
-        //</editor-fold>
-        mapTypeId: 'roadmap'
+        ]
     });
 
-    var input = document.getElementById('srch-term');
-    var searchBox = new google.maps.places.SearchBox(input);
-
-    map.addListener('bounds_changed', function () {
-        searchBox.setBounds(map.getBounds());
+    heatmap = new google.maps.visualization.HeatmapLayer({
+        data: getPoints(),
+        map: map
     });
 
-    var markers = [];
-    searchBox.addListener('places_changed', function () {
-        var places = searchBox.getPlaces();
-
-        if (places.length === 0) {
-            return;
-        }
-
-        markers.forEach(function (marker) {
-            marker.setMap(null);
-        });
-        markers = [];
-
-        var bounds = new google.maps.LatLngBounds();
-        places.forEach(function (place) {
-            if (!place.geometry) {
-                console.log("Returned place contains no geometry");
-                return;
-            }
-            var icon = {
-                url: place.icon,
-                size: new google.maps.Size(71, 71),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(17, 34),
-                scaledSize: new google.maps.Size(25, 25)
-            };
-
-            markers.push(new google.maps.Marker({
-                map: map,
-                icon: icon,
-                title: place.name,
-                position: place.geometry.location
-            }));
-
-            if (place.geometry.viewport) {
-                bounds.union(place.geometry.viewport);
-            } else {
-                bounds.extend(place.geometry.location);
-            }
-        });
-        map.fitBounds(bounds);
-    });
-
-    marker_location = new google.maps.Marker({
-        map: map,
-        draggable: true,
-        animation: google.maps.Animation.DROP,
-        position: {lat: latitude, lng: longitude},
-    });
-    marker_location.addListener('click', toggleBounce);
+    var gradient = [
+        'rgba(0, 0, 0, 0)',
+        'rgba(255, 255, 0, 1)',
+        'rgba(255, 0, 0, 1)',
+        'rgba(255, 0, 0, 1)',
+        'rgba(255, 0, 0, 1)'
+    ];
+    heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
+    heatmap.set('radius', heatmap.get('radius') ? null : 50);
 }
-function toggleBounce() {
-    if (marker_location.getAnimation() !== null) {
-        marker_location.setAnimation(null);
-    } else {
-        marker_location.setAnimation(google.maps.Animation.BOUNCE);
-    }
+
+function getPoints() {
+    return [
+        new google.maps.LatLng(56.883310, 14.816063)
+    ];
 }
 
 //AIzaSyATSBqMTFTp81fj3k7pWLEa-Ok5m2rTmJY
