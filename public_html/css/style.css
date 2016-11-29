@@ -24,6 +24,27 @@ html, body {
     padding: 0;
 }
 
+/* Css för mobiler */
+@media only screen and (max-width: 600px){
+    #map {
+        height: 100%;
+        width: 100%;
+    }
+    #info-panel{
+        height: 100%;
+        width: 100%;
+        background-color: #333;
+        text-align: center;
+    }
+    #info-wrap{
+        height: 100%;
+        width: 100%;
+        margin: auto;
+    }
+    #srch {
+        width: 94% !important;
+    }
+}
 
 
 
