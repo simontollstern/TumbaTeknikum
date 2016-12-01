@@ -23,6 +23,9 @@ html, body {
     margin: 0;
     padding: 0;
 }
+h1 {
+    font-size: 20px !important;
+}
 
 /* Css för mobiler */
 @media only screen and (max-width: 600px){
@@ -97,11 +100,11 @@ html, body {
     text-align: center;
     color: #ededed;
     font-family: 'Avant Garde', Avantgarde, 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
-    font-size: 18px;
+    font-size: 12px;
 }
 
 .infoSubtext{
     color: #c1c1c1;
     font-family: 'Avant Garde', Avantgarde, 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
-    font-size: 15px;
+    font-size: 14px;
 }
