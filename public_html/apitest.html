@@ -2,268 +2,265 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <title></title>
-        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
-            <style>
-                table
-                {
-                    border: 1px solid #000000;
-                    border-collapse: collapse;
-                    border-spacing: 0px;
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+        <style>
+            table
+            {
+                border: 1px solid #000000;
+                border-collapse: collapse;
+                border-spacing: 0px;
+            }
+            table td
+            {
+                padding: 8px 8px;
+            }
+        </style>
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+        <script type="text/javascript">
+            var Stations = new Array();
+            $(document).ready(function () {
+                $.support.cors = true; // Enable Cross domain requests
+                try {
+                    $.ajaxSetup({
+                        url: "http://api.trafikinfo.trafikverket.se/v1/data.json",
+                        error: function (msg) {
+                            if (msg.statusText === "abort")
+                                return;
+                            alert("Request failed: " + msg.statusText + "\n" + msg.responseText);
+                        }
+                    });
+                } catch (e) {
+                    alert("Ett fel uppstod vid initialisering.");
                 }
-                table td
-                {
-                    padding: 8px 8px;
-                }
-            </style>
-            <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-            <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-            <script type="text/javascript">
-                var Stations = new Array();
-                $(document).ready(function () {
-                    $.support.cors = true; // Enable Cross domain requests
-                    try {
-                        $.ajaxSetup({
-                            url: "http://api.trafikinfo.trafikverket.se/v1/data.json",
-                            error: function (msg) {
-                                if (msg.statusText === "abort")
-                                    return;
-                                alert("Request failed: " + msg.statusText + "\n" + msg.responseText);
-                            }
-                        });
-                    } catch (e) {
-                        alert("Ett fel uppstod vid initialisering.");
-                    }
-                    // Create an ajax loading indicator
-                    var loadingTimer;
+                // Create an ajax loading indicator
+                var loadingTimer;
+                $("#loader").hide();
+                $(document).ajaxStart(function () {
+                    loadingTimer = setTimeout(function () {
+                        $("#loader").show();
+                    }, 200);
+                }).ajaxStop(function () {
+                    clearTimeout(loadingTimer);
                     $("#loader").hide();
-                    $(document).ajaxStart(function () {
-                        loadingTimer = setTimeout(function () {
-                            $("#loader").show();
-                        }, 200);
-                    }).ajaxStop(function () {
-                        clearTimeout(loadingTimer);
-                        $("#loader").hide();
-                    });
-                    // Load stations
-                    PreloadTrainStations();
                 });
-
-                function PreloadTrainStations() {
-                    // Request to load all stations
-                    var xmlRequest = "<REQUEST>" +
-                            // Use your valid authenticationkey
-                            "<LOGIN authenticationkey='e294157bcc3b405dafe3257786faa6b7' />" +
-                            "<QUERY objecttype='TrainStation' >" +
-                            "<FILTER/>" +
-                            "<INCLUDE>Prognosticated</INCLUDE>" +
-                            "<INCLUDE>AdvertisedLocationName</INCLUDE>" +
-                            "<INCLUDE>LocationSignature</INCLUDE>" +
-                            "<INCLUDE>Geometry.SWEREF99TM</INCLUDE>" +
-                            "</QUERY>" +
-                            "</REQUEST>";
-                    $.ajax({
-                        type: "POST",
-                        contentType: "text/xml",
-                        dataType: "json",
-                        data: xmlRequest,
-                        success: function (response) {
-                            if (response === null)
-                                return;
-                            try {
-                                var stationlist = [];
-                                $(response.RESPONSE.RESULT[0].TrainStation).each(function (iterator, item)
-                                {
-                                    // Save a key/value list of stations
-                                    Stations[item.LocationSignature] = item.AdvertisedLocationName;
-                                    // Create an array to fill the search field autocomplete.
-                                    if (item.Prognosticated === true)
-                                        stationlist.push({label: item.AdvertisedLocationName, value: item.LocationSignature});
-                                });
-                                fillSearchWidget(stationlist);
-                            } catch (ex) {
-                            }
-                        }
-                    });
-                }
-
-                function fillSearchWidget(data) {
-                    $("#station").val("");
-                    $("#station").autocomplete({
-                        // Make the autocomplete fill with matches that "starts with" only
-                        source: function (request, response) {
-                            var matches = $.map(data, function (tag) {
-                                if (tag.label.toUpperCase().indexOf(request.term.toUpperCase()) === 0) {
-                                    return {
-                                        label: tag.label,
-                                        value: tag.value
-                                    };
-                                }
+                // Load stations
+                PreloadTrainStations();
+            });
+            function PreloadTrainStations() {
+                // Request to load all stations
+                var xmlRequest = "<REQUEST>" +
+                        // Use your valid authenticationkey
+                        "<LOGIN authenticationkey='e294157bcc3b405dafe3257786faa6b7' />" +
+                        "<QUERY objecttype='TrainStation' >" +
+                        "<FILTER/>" +
+                        "<INCLUDE>Prognosticated</INCLUDE>" +
+                        "<INCLUDE>AdvertisedLocationName</INCLUDE>" +
+                        "<INCLUDE>LocationSignature</INCLUDE>" +
+                        "</QUERY>" +
+                        "</REQUEST>";
+                $.ajax({
+                    type: "POST",
+                    contentType: "text/xml",
+                    dataType: "json",
+                    data: xmlRequest,
+                    success: function (response) {
+                        if (response === null)
+                            return;
+                        try {
+                            var stationlist = [];
+                            $(response.RESPONSE.RESULT[0].TrainStation).each(function (iterator, item)
+                            {
+                                // Save a key/value list of stations
+                                Stations[item.LocationSignature] = item.AdvertisedLocationName;
+                                // Create an array to fill the search field autocomplete.
+                                if (item.Prognosticated === true)
+                                    stationlist.push({label: item.AdvertisedLocationName, value: item.LocationSignature});
                             });
-                            response(matches);
-                        },
-                        select: function (event, ui) {
-                            var selectedObj = ui.item;
-                            $("#station").val(selectedObj.label);
-                            // Save selected stations signature
-                            $("#station").data("sign", selectedObj.value);
-                            return false;
-                        },
-                        focus: function (event, ui) {
-                            var selectedObj = ui.item;
-                            // Show station name in search field
-                            $("#station").val(selectedObj.label);
-                            return false;
+                            fillSearchWidget(stationlist);
+                        } catch (ex) {
                         }
-                    });
-                }
-
-                function Search() {
-                    var sign = $("#station").data("sign");
-                    var xmlRequest = "<REQUEST version='1.0'>" +
-                            "<LOGIN authenticationkey='e294157bcc3b405dafe3257786faa6b7' />" +
-                            "<QUERY objecttype='TrainAnnouncement' " +
-                            "orderby='AdvertisedTimeAtLocation' >" +
-                            "<FILTER>" +
-                            "<EQ name='ActivityType' value='Ankomst' />" +
-                            "<AND>" +
-                            "<OR>" +
-                            "<AND>" +
-                            "<GT name='AdvertisedTimeAtLocation' " +
-                            "value='$dateadd(-00:15:00)' />" +
-                            "<LT name='AdvertisedTimeAtLocation' " +
-                            "value='$dateadd(14:00:00)' />" +
-                            "</AND>" +
-                            "<GT name='EstimatedTimeAtLocation' value='$now' />" +
-                            "</OR>" +
-                            "<EQ name='LocationSignature' value='" + sign + "' />" +
-                            "</AND>" +
-                            "</FILTER>" +
-                            // Just include wanted fields to reduce response size.
-                            "<INCLUDE>AdvertisedTimeAtLocation</INCLUDE>" +
-                            "<INCLUDE>FromLocation</INCLUDE>" +
-                            "<INCLUDE>EstimatedTimeIsPreliminary</INCLUDE>" +
-                            "<INCLUDE>TypeOfTraffic</INCLUDE>" +
-                            "<INCLUDE>TechnicalTrainIdent</INCLUDE>" +
-                            "<INCLUDE>ScheduledDepartureDateTime</INCLUDE>" +
-                            "<INCLUDE>Canceled</INCLUDE>" +
-                            "<INCLUDE>TimeAtLocation</INCLUDE>" +
-                            "<INCLUDE>ActivityType</INCLUDE>" +
-                            "<INCLUDE>TypeOfTraffic</INCLUDE>" +
-                            "<INCLUDE>LocationSignature</INCLUDE>" +
-                            "</QUERY>" +
-                            "</REQUEST>";
-                    $.ajax({
-                        type: "POST",
-                        contentType: "text/xml",
-                        dataType: "json",
-                        data: xmlRequest,
-                        success: function (response) {
-                            if (response === null)
-                                return;
-                            if (response.RESPONSE.RESULT[0].TrainAnnouncement === null)
-                                jQuery("#timeTableDeparture tr:last").
-                                        after("<tr><td colspan='4'>Inga avgångar hittades</td></tr>");
-                            try {
-                                renderTrainAnnouncement(response.RESPONSE.RESULT[0].TrainAnnouncement);
-                            } catch (ex) {
-                                console.log("DÖÖÖ");
+                    }
+                });
+            }
+            function fillSearchWidget(data) {
+                $("#station").val("");
+                $("#station").autocomplete({
+                    // Make the autocomplete fill with matches that "starts with" only
+                    source: function (request, response) {
+                        var matches = $.map(data, function (tag) {
+                            if (tag.label.toUpperCase().indexOf(request.term.toUpperCase()) === 0) {
+                                return {
+                                    label: tag.label,
+                                    value: tag.value
+                                };
                             }
-
+                        });
+                        response(matches);
+                    },
+                    select: function (event, ui) {
+                        var selectedObj = ui.item;
+                        $("#station").val(selectedObj.label);
+                        // Save selected stations signature
+                        $("#station").data("sign", selectedObj.value);
+                        return false;
+                    },
+                    focus: function (event, ui) {
+                        var selectedObj = ui.item;
+                        // Show station name in search field
+                        $("#station").val(selectedObj.label);
+                        return false;
+                    }
+                });
+            }
+            function Search() {
+                var sign = $("#station").data("sign");
+                var xmlRequest = "<REQUEST version='1.0'>" +
+                        "<LOGIN authenticationkey='e294157bcc3b405dafe3257786faa6b7' />" +
+                        "<QUERY objecttype='TrainAnnouncement' " +
+                        "orderby='AdvertisedTimeAtLocation' >" +
+                        "<FILTER>" +
+                        "<EQ name='ActivityType' value='Ankomst' />" +
+                        "<AND>" +
+                        "<OR>" +
+                        "<AND>" +
+                        "<GT name='AdvertisedTimeAtLocation' " +
+                        "value='$dateadd(-00:15:00)' />" +
+                        "<LT name='AdvertisedTimeAtLocation' " +
+                        "value='$dateadd(14:00:00)' />" +
+                        "</AND>" +
+                        "<GT name='EstimatedTimeAtLocation' value='$now' />" +
+                        "</OR>" +
+                        "<EQ name='LocationSignature' value='" + sign + "' />" +
+                        "</AND>" +
+                        "</FILTER>" +
+                        // Just include wanted fields to reduce response size.
+                        "<INCLUDE>AdvertisedTimeAtLocation</INCLUDE>" +
+                        "<INCLUDE>FromLocation</INCLUDE>" +
+                        "<INCLUDE>EstimatedTimeIsPreliminary</INCLUDE>" +
+                        "<INCLUDE>TypeOfTraffic</INCLUDE>" +
+                        "<INCLUDE>TechnicalTrainIdent</INCLUDE>" +
+                        "<INCLUDE>ScheduledDepartureDateTime</INCLUDE>" +
+                        "<INCLUDE>Canceled</INCLUDE>" +
+                        "<INCLUDE>TimeAtLocation</INCLUDE>" +
+                        "<INCLUDE>ActivityType</INCLUDE>" +
+                        "<INCLUDE>TypeOfTraffic</INCLUDE>" +
+                        "<INCLUDE>LocationSignature</INCLUDE>" +
+                        "<INCLUDE>Geometry.WGS84</INCLUDE>" +
+                        "</QUERY>" +
+                        "<QUERY objecttype='TrainStation'>" +
+                        "<FILTER>" +
+                        "<EQ name='LocationSignature' value='" + sign + "' />" +
+                        "</FILTER>" +
+                        "<INCLUDE>Geometry.WGS84</INCLUDE>" +
+                        "</QUERY>" +
+                        "</REQUEST>";
+                $.ajax({
+                    type: "POST",
+                    contentType: "text/xml",
+                    dataType: "json",
+                    data: xmlRequest,
+                    success: function (response) {
+                        if (response === null)
+                            return;
+                        if (response.RESPONSE.RESULT[0].TrainAnnouncement === null)
+                            jQuery("#timeTableDeparture tr:last").
+                                    after("<tr><td colspan='4'>Inga avgångar hittades</td></tr>");
+                        try {
+                            console.log("renderTrainAnnouncement");
+                            renderTrainAnnouncement(response.RESPONSE.RESULT[0].TrainAnnouncement);
+                            console.log("renderTrainStation");
+                            renderTrainStation(response.RESPONSE.RESULT[0].TrainStation);
+                        } catch (ex) {
+                            console.log("DÖÖÖ");
                         }
-
+                    }
+                });
+            }
+            function renderTrainAnnouncement(announcement) {
+                $(announcement).each(function (iterator, item) {
+                    var advertisedtime = new Date(item.AdvertisedTimeAtLocation);
+                    var hours = advertisedtime.getHours();
+                    var minutes = advertisedtime.getMinutes();
+                    if (minutes < 10)
+                        minutes = "0" + minutes;
+                    //planerad tid
+                    console.log("Planerad tid: " + hours + ":" + minutes);
+                    var tidpaplats = new Date(item.TimeAtLocation);
+                    var hours1 = tidpaplats.getHours();
+                    var minutes1 = tidpaplats.getMinutes();
+                    if (minutes1 < 10)
+                        minutes1 = "0" + minutes1;
+                    var testtid = "" + hours1 + ":" + minutes1;
+                    //tid på plats
+                    if (testtid !== "NaN:NaN") {
+                        console.log("Tid på plats: " + hours1 + ":" + minutes1);
+                    }
+                    //vilken typ av fordon
+                    var toList = new Array();
+                    $(item.TypeOfTraffic).each(function (iterator, toItem) {
+                        toList.push(Stations[toItem]);
                     });
-                }
-
-                function renderTrainAnnouncement(announcement) {
-                    $(announcement).each(function (iterator, item) {
-                        var advertisedtime = new Date(item.AdvertisedTimeAtLocation);
-                        var hours = advertisedtime.getHours();
-                        var minutes = advertisedtime.getMinutes();
-                        if (minutes < 10)
-                            minutes = "0" + minutes;
-
-                        //planerad tid
-                        console.log("Planerad tid: " + hours + ":" + minutes);
-
-                        var tidpaplats = new Date(item.TimeAtLocation);
-                        var hours1 = tidpaplats.getHours();
-                        var minutes1 = tidpaplats.getMinutes();
-                        if (minutes1 < 10)
-                            minutes1 = "0" + minutes1;
-                        var testtid = "" + hours1 + ":" + minutes1;
-
-                        //tid på plats
-                        if (testtid !== "NaN:NaN") {
-                            console.log("Tid på plats: " + hours1 + ":" + minutes1);
-                        }
-
-
-                        //vilken typ av fordon
-                        var toList = new Array();
-                        $(item.TypeOfTraffic).each(function (iterator, toItem) {
-                            toList.push(Stations[toItem]);
-
-                        });
-
-                        if (item.TypeOfTraffic !== null) {
-                            var type = item.TypeOfTraffic;
-                            console.log("Fordonstyp: " + type);
-                        }
-
-                        //om de är inställt
-                        var toList1 = new Array();
-                        $(item.Canceled).each(function (iterator, toItem) {
-                            toList.push(Stations[toItem]);
-
-                        });
-
-                        if (item.Canceled !== null) {
-                            var type1 = item.Canceled;
-                            console.log("Inställt:  " + type1);
-                        }
-
-                        //Om de är ankomst eller avgång
-                        var toList2 = new Array();
-                        $(item.ActivityType).each(function (iterator, toItem) {
-                            toList.push(Stations[toItem]);
-
-                        });
-
-                        if (item.ActivityType !== null) {
-                            var type2 = item.ActivityType;
-                            console.log("Avgång eller ankomst: " + type2);
-                        }
-
-                        //om de är en preliminär tid 
-                        var toList3 = new Array();
-                        $(item.EstimatedTimeIsPreliminary).each(function (iterator, toItem) {
-                            toList.push(Stations[toItem]);
-
-                        });
-
-                        if (item.EstimatedTimeIsPreliminary !== null) {
-                            var type3 = item.EstimatedTimeIsPreliminary;
-                            console.log("Preliminär tid: " + type3);
-                        }
-                        //om de är en preliminär tid 
-                        var toList4 = new Array();
-                        $(item.LocationSignature).each(function (iterator, toItem) {
-                            toList.push(Stations[toItem]);
-
-                        });
-
-                        if (item.LocationSignature !== null) {
-                            var type4 = item.LocationSignature;
-                            console.log("Plats: " + type4);
-                        }
-                        console.log("\n");
-
-
-
+                    if (item.TypeOfTraffic !== null) {
+                        var type = item.TypeOfTraffic;
+                        console.log("Fordonstyp: " + type);
+                    }
+                    //om de är inställt
+                    var toList1 = new Array();
+                    $(item.Canceled).each(function (iterator, toItem) {
+                        toList.push(Stations[toItem]);
                     });
-                }
-
-            </script>
+                    if (item.Canceled !== null) {
+                        var type1 = item.Canceled;
+                        console.log("Inställt:  " + type1);
+                    }
+                    //Om de är ankomst eller avgång
+                    var toList2 = new Array();
+                    $(item.ActivityType).each(function (iterator, toItem) {
+                        toList.push(Stations[toItem]);
+                    });
+                    if (item.ActivityType !== null) {
+                        var type2 = item.ActivityType;
+                        console.log("Avgång eller ankomst: " + type2);
+                    }
+                    //om de är en preliminär tid 
+                    var toList3 = new Array();
+                    $(item.EstimatedTimeIsPreliminary).each(function (iterator, toItem) {
+                        toList.push(Stations[toItem]);
+                    });
+                    if (item.EstimatedTimeIsPreliminary !== null) {
+                        var type3 = item.EstimatedTimeIsPreliminary;
+                        console.log("Preliminär tid: " + type3);
+                    }
+                    //om de är en preliminär tid 
+                    var toList4 = new Array();
+                    $(item.LocationSignature).each(function (iterator, toItem) {
+                        toList.push(Stations[toItem]);
+                    });
+                    if (item.LocationSignature !== null) {
+                        var type4 = item.LocationSignature;
+                        console.log("Plats: " + type4);
+                    }
+                    console.log("\n");
+                });
+            }
+            function renderTrainStation(station) {
+                console.log("1");
+                $(station).each(function (iterator, item) {
+                    console.log("2");
+                    var toList = new Array();
+                    $(item.Geometry.WGS84).each(function (iterator, toItem) {
+                        toList.push(Stations[toItem]);
+                    });
+                    
+                    if (item.Geometry.WGS84 !== null) {
+                        var type = item.Geometry.WGS84;
+                        console.log("Koordinater (stationer i LocationSignature): " + type);
+                    }
+                    console.log("\n");
+                });
+            }
+        </script>
     </head>
     <body>
         <div>
