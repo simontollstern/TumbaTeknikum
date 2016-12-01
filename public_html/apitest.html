@@ -47,10 +47,37 @@
                 // Load stations
                 PreloadTrainStations();
             });
+            function skjutmigipungen() {
+                var xmlRequest = "<REQUEST>" +
+                        "<LOGIN authenticationkey='e294157bcc3b405dafe3257786faa6b7'/>" +
+                        "<QUERY objecttype='TrainMessage'>" +
+                        "<FILTER/>" +
+                        "<INCLUDE>ExternalDescription</INCLUDE>" +
+                        "<INCLUDE>ReasonCodeText</INCLUDE>" +
+                        "</QUERY>" +
+                        "</REQUEST>";
+                $.ajax({
+                    type: "POST",
+                    contentType: "text/xml",
+                    dataType: "json",
+                    data: xmlRequest,
+                    success: function (response) {
+                        if (response === null)
+                            return;
+                        try {
+                            console.log(response);
+                        } catch (ex) {
+                            console.log("rövhål");
+                        }
+                    }
+                });
+            }
+            
+
+
             function PreloadTrainStations() {
                 // Request to load all stations
                 var xmlRequest = "<REQUEST>" +
-                        // Use your valid authenticationkey
                         "<LOGIN authenticationkey='e294157bcc3b405dafe3257786faa6b7' />" +
                         "<QUERY objecttype='TrainStation' >" +
                         "<FILTER/>" +
@@ -163,16 +190,26 @@
                     success: function (response) {
                         if (response === null)
                             return;
-                        if (response.RESPONSE.RESULT[0].TrainAnnouncement === null)
+                        if (response.RESPONSE.RESULT[0].TrainAnnouncement === null) {
                             jQuery("#timeTableDeparture tr:last").
                                     after("<tr><td colspan='4'>Inga avgångar hittades</td></tr>");
+                        }
+                        if (response.RESPONSE.RESULT[0].TrainStation !== null) {
+                            console.log("kuk");
+                            console.log(response.RESPONSE.RESULT[1].TrainStation);
+                        }
                         try {
                             console.log("renderTrainAnnouncement");
                             renderTrainAnnouncement(response.RESPONSE.RESULT[0].TrainAnnouncement);
-                            console.log("renderTrainStation");
-                            renderTrainStation(response.RESPONSE.RESULT[0].TrainStation);
+
                         } catch (ex) {
                             console.log("DÖÖÖ");
+                        }
+                        try {
+                            console.log("renderTrainStation");
+                            renderTrainStation(response.RESPONSE.RESULT[1].TrainStation);
+                        } catch (ex) {
+                            console.log("DÖÖÖD ÅT STATIONS");
                         }
                     }
                 });
@@ -252,7 +289,7 @@
                     $(item.Geometry.WGS84).each(function (iterator, toItem) {
                         toList.push(Stations[toItem]);
                     });
-                    
+
                     if (item.Geometry.WGS84 !== null) {
                         var type = item.Geometry.WGS84;
                         console.log("Koordinater (stationer i LocationSignature): " + type);
@@ -265,7 +302,7 @@
     <body>
         <div>
             <input id="station" type="text" />
-            <input type="button" value="Visa" onclick="javascript: Search()" />
+            <input type="button" value="Visa" onclick="javascript: skjutmigipungen()" />
             <span id="loader" style="margin-left: 10px">Laddar data ...</span>
         </div>
         <div id="result">
