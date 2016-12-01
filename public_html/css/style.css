@@ -92,3 +92,16 @@ html, body {
 #target {
     width: 345px;
 }
+
+.infoTitle{
+    text-align: center;
+    color: #ededed;
+    font-family: 'Avant Garde', Avantgarde, 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
+    font-size: 18px;
+}
+
+.infoSubtext{
+    color: #c1c1c1;
+    font-family: 'Avant Garde', Avantgarde, 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
+    font-size: 15px;
+}
