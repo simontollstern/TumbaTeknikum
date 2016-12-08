@@ -10,11 +10,11 @@
     <body>
         <input id="srch" class="controls" type="text" placeholder="Search Box">
         <div id="map"></div>
-        <div id="info-panel">
+        <div id="info-panel" style="overflow-y: scroll; height:100%;">
             <div id="info-wrap">
                 <h1>Driftstörningar</h1>
                 <hr />
-                <table id="messages" style="border-collapse:separate; border-spacing:1em;">
+                <table id="messages">
                     <tr>
                         <th class="infoTitle" id="xpeke">Meddelande</th>
                     </tr>
@@ -45,6 +45,7 @@
         <script src="js/modernizr-custom.js" type="text/javascript"></script>
         <script src="js/script.js" type="text/javascript"></script>
         <script src="js/messages.js" type="text/javascript"></script>
+        <script src="js/markers.js" type="text/javascript"></script>
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyATSBqMTFTp81fj3k7pWLEa-Ok5m2rTmJY&libraries=places,visualization&callback=initMap"
         async defer></script>
     </body>

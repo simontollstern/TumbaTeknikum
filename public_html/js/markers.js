@@ -26,13 +26,13 @@ $(document).ready(function () {
     // Load stations
 
 });
-function messages() {
+function markers() {
     var xmlRequest = "<REQUEST>" +
             "<LOGIN authenticationkey='e294157bcc3b405dafe3257786faa6b7'/>" +
-            "<QUERY objecttype='TrainMessage'>" +
+            "<QUERY objecttype='TrainStation'>" +
             "<FILTER/>" +
-            "<INCLUDE>ExternalDescription</INCLUDE>" +
-            "<INCLUDE>ReasonCodeText</INCLUDE>" +
+            "<INCLUDE>AdvertisedLocationName</INCLUDE>" +
+            "<INCLUDE>Geometry.WGS84</INCLUDE>" +
             "</QUERY>" +
             "</REQUEST>";
     $.ajax({
@@ -45,20 +45,10 @@ function messages() {
                 return;
             try {
                 console.dir(response);
-                for (var i = 0; i < 20; i++) {
-                    console.log(response.RESPONSE.RESULT[0].TrainMessage[i].ExternalDescription);
-                    console.log(response.RESPONSE.RESULT[0].TrainMessage[i].ReasonCodeText);
-
-                    $("#xpeke").text(response.RESPONSE.RESULT[0].TrainMessage[0].ExternalDescription);
-                    $("#xpeke2").text("Orsak: " + response.RESPONSE.RESULT[0].TrainMessage[0].ReasonCodeText);
-
-                    $("#xpeke3").text(response.RESPONSE.RESULT[0].TrainMessage[1].ExternalDescription);
-                    $("#xpeke4").text("Orsak: " + response.RESPONSE.RESULT[0].TrainMessage[1].ReasonCodeText);
-
-                    $("#xpeke5").text(response.RESPONSE.RESULT[0].TrainMessage[2].ExternalDescription);
-                    $("#xpeke6").text("Orsak: " + response.RESPONSE.RESULT[0].TrainMessage[3].ReasonCodeText);
+                for (var i = 0; i < 1878; i++) {
+                    console.log(response.RESPONSE.RESULT[0].TrainStation[i].AdvertisedLocationName);
+                    console.log(response.RESPONSE.RESULT[0].TrainStation[i].Geometry.WGS84);
                 }
-                $('#print').text(response);
             } catch (ex) {
                 console.log("rövhål");
 
@@ -67,5 +57,5 @@ function messages() {
     });
 }
 $(document).ready(function () {
-    messages();
+    markers();
 });

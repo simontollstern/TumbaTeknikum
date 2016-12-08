@@ -108,3 +108,7 @@ h1 {
     font-family: 'Avant Garde', Avantgarde, 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
     font-size: 14px;
 }
+#messages{
+    border-collapse:separate; 
+    border-spacing:1em;
+}
