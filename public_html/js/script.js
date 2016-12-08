@@ -250,6 +250,7 @@ function loadMap(position) {
         data: getPoints(),
         map: map
     });
+
     var gradient = [
         'rgba(0, 0, 0, 0)',
         'rgba(255, 255, 0, 1)',
@@ -262,10 +263,10 @@ function loadMap(position) {
 }
 
 function getPoints() {
-        return [
-          new google.maps.LatLng(59.334591, 18.063240),
-          new google.maps.LatLng(37.751266, -122.403355)
-        ];
-      }
+    return [
+        new google.maps.LatLng(59.334591, 18.063240),
+        new google.maps.LatLng(37.751266, -122.403355)
+    ];
+}
 
 //AIzaSyATSBqMTFTp81fj3k7pWLEa-Ok5m2rTmJY  334591  18.063240

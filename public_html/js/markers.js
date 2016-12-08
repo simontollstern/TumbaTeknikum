@@ -48,6 +48,18 @@ function markers() {
                 for (var i = 0; i < 1878; i++) {
                     console.log(response.RESPONSE.RESULT[0].TrainStation[i].AdvertisedLocationName);
                     console.log(response.RESPONSE.RESULT[0].TrainStation[i].Geometry.WGS84);
+                    var asd = response.RESPONSE.RESULT[0].TrainStation[i].Geometry.WGS84;
+                    var longString = asd.substring(7, 16);
+                    var latString = asd.substring(24, 33);
+                    var long = parseFloat(longString);
+                    var lat = parseFloat(latString);
+                    console.log(long);
+                    console.log(lat);
+
+                    var marker = new google.maps.Marker({
+                        position: {lat: lat, lng: long},
+                        map: map
+                    });
                 }
             } catch (ex) {
                 console.log("rövhål");
